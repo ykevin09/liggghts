@@ -447,8 +447,8 @@ void ComputePairGranLocal::add_pair(int i,int j,double fx,double fy,double fz,do
     {
         vectorCopy3D(xi,xi_w);
         vectorCopy3D(xj,xj_w);
-        domain->remap(xi_w);
-        domain->remap(xj_w);
+        //domain->remap(xi_w);
+        //domain->remap(xj_w);
         vectorToBuf3D(xi_w,array[ipair],n);
         vectorToBuf3D(xj_w,array[ipair],n);
     }

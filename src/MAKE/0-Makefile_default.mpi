@@ -1,4 +1,4 @@
-# mpi = mpic++, VTK 8.2 (alternative compilation, might need modification)
+# mpi = mpic++, VTK 6.2 (alternative compilation, might need modification)
 
 SHELL = /bin/sh
 
@@ -6,17 +6,17 @@ SHELL = /bin/sh
 # compiler/linker settings
 # specify flags and libraries needed for your compiler
 
-CC =		mpiicpc
+CC =		mpic++
 # Optimized version
-CCFLAGS =  -O2 -fPIC -xCOMMON-AVX512 -axCORE-AVX512 -diag-disable=cpu-dispatch -fp-model precise -qno-offload -qoverride-limits -fno-alias -ansi-alias -qopenmp -restrict 
+CCFLAGS =	-O2 -funroll-loops -fstrict-aliasing -Wall -Wno-unused-result -fPIC
 # Debug version
 #CCFLAGS =	-Og -g -pg -fPIC
 SHFLAGS =	-fPIC
 DEPFLAGS =	-M
 
-LINK = mpiicpc
+LINK =		mpic++
 # Optimized version
-LINKFLAGS =	-O2 -fPIC -xCOMMON-AVX512 -axCORE-AVX512 -diag-disable=cpu-dispatch -fp-model precise -qno-offload -qoverride-limits -fno-alias -ansi-alias -qopenmp -restrict
+LINKFLAGS =	-O2 -fPIC
 # Debug version
 #LINKFLAGS =	-Og -g -pg -fPIC
 LIB =		-lstdc++
@@ -34,7 +34,7 @@ SHLIBFLAGS =	-shared
 # LAMMPS ifdef settings, OPTIONAL
 # see possible settings in doc/Section_start.html#2_2 (step 4)
 
-LMP_INC =	-DLAMMPS_GZIP -DSUPERQUADRIC_ACTIVE_FLAG -DNONSPHERICAL_ACTIVE_FLAG
+LMP_INC =	-DLAMMPS_GZIP -DLAMMPS_VTK
 
 # MPI library, REQUIRED
 # see discussion in doc/Section_start.html#2_2 (step 5)
@@ -54,9 +54,9 @@ MPI_LIB =
 # PATH = path for FFT library
 # LIB = name of FFT library
 
-FFT_INC = -DFFT_MKL -I$(TACC_MKL_INC)
-FFT_PATH = 
-FFT_LIB = -L$(TACC_MKL_LIB) -mkl=sequential
+FFT_INC =
+FFT_PATH =
+FFT_LIB =
 
 # JPEG and/or PNG library, OPTIONAL
 # see discussion in doc/Section_start.html#2_2 (step 7)
@@ -74,14 +74,9 @@ JPG_LIB =
 # PATH = path for VTK library
 # LIB = name of VTK library
 
-#VTK_INC =	-I/work/05605/yangm15/frontera/apps/usr/local/include/vtk-8.2
-#VTK_PATH =	-L/work/05605/yangm15/frontera/apps/usr/local/lib64
-#TACC_VTK_LIB = /work/05605/yangm15/frontera/apps/usr/local/lib64
-VTK_INC = -I/scratch1/05605/yangm15/apps/include/vtk-8.2
-VTK_PATH = -L/scratch1/05605/yangm15/apps/lib64
-TACC_VTK_LIB = /scratch1/05605/yangm15/apps/lib64
-VTK_LIB =	$(TACC_VTK_LIB)/libvtkCommonCore-8.2.so $(TACC_VTK_LIB)/libvtkIOCore-8.2.so $(TACC_VTK_LIB)/libvtkIOXML-8.2.so $(TACC_VTK_LIB)/libvtkIOLegacy-8.2.so $(TACC_VTK_LIB)/libvtkCommonDataModel-8.2.so $(TACC_VTK_LIB)/libvtkIOParallel-8.2.so $(TACC_VTK_LIB)/libvtkParallelCore-8.2.so $(TACC_VTK_LIB)/libvtkParallelMPI-8.2.so $(TACC_VTK_LIB)/libvtkIOImage-8.2.so $(TACC_VTK_LIB)/libvtkCommonExecutionModel-8.2.so $(TACC_VTK_LIB)/libvtkFiltersCore-8.2.so $(TACC_VTK_LIB)/libvtkIOParallelXML-8.2.so
-#VTK_LIB =	-lvtkCommonCore-6.2 -lvtkIOCore-6.2 -lvtkIOXML-6.2 -lvtkIOLegacy-6.2 -lvtkCommonDataModel-6.2 -lvtkIOParallel-6.2 -lvtkParallelCore-6.2 -lvtkParallelMPI-6.2 -lvtkIOImage-6.2 -lvtkCommonExecutionModel-6.2 -lvtkFiltersCore-6.2 -lvtkIOParallelXML-6.2
+VTK_INC =	-I/usr/include/vtk-6.2
+VTK_PATH =	#-L/usr/lib/x86_64-linux-gnu
+VTK_LIB =	-lvtkCommonCore-6.2 -lvtkIOCore-6.2 -lvtkIOXML-6.2 -lvtkIOLegacy-6.2 -lvtkCommonDataModel-6.2 -lvtkIOParallel-6.2 -lvtkParallelCore-6.2 -lvtkParallelMPI-6.2 -lvtkIOImage-6.2 -lvtkCommonExecutionModel-6.2 -lvtkFiltersCore-6.2 -lvtkIOParallelXML-6.2
 
 # ---------------------------------------------------------------------
 # build rules and dependencies
@@ -90,10 +85,7 @@ VTK_LIB =	$(TACC_VTK_LIB)/libvtkCommonCore-8.2.so $(TACC_VTK_LIB)/libvtkIOCore-8
 include	Makefile.package.settings
 include	Makefile.package
 
-#BOOST_PATH = -I/opt/apps/intel17/boost/1.68/include
-BOOST_PATH = -I${TACC_BOOST_INC}
-
-EXTRA_INC = $(LMP_INC) $(PKG_INC) $(MPI_INC) $(FFT_INC) $(JPG_INC) $(VTK_INC) $(PKG_SYSINC) $(BOOST_PATH)
+EXTRA_INC = $(LMP_INC) $(PKG_INC) $(MPI_INC) $(FFT_INC) $(JPG_INC) $(VTK_INC) $(PKG_SYSINC)
 EXTRA_PATH = $(PKG_PATH) $(MPI_PATH) $(FFT_PATH) $(JPG_PATH) $(VTK_PATH) $(PKG_SYSPATH)
 EXTRA_LIB = $(PKG_LIB) $(MPI_LIB) $(FFT_LIB) $(JPG_LIB) $(VTK_LIB) $(PKG_SYSLIB)
 
